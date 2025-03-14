@@ -24,8 +24,7 @@ function display(categories){
         // console.log(cate);
         const div = document.createElement('div');
         div.innerHTML=`
-        <button id="btn-${cate.category_id}" onclick="categoriesVideoLoad(${cate.category_id})" class="btn btn-sm hover:bg-[#FF1F3D] hover:text-white">${cate.category
-}</button>
+        <button id="btn-${cate.category_id}" onclick="categoriesVideoLoad(${cate.category_id})" class="btn btn-sm hover:bg-[#FF1F3D] hover:text-white">${cate.category}</button>
         `
         buttonSection.appendChild(div);
     }
@@ -40,8 +39,9 @@ function loadVideoCard(searchVar = ''){
     fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchVar}`)
     .then((res)=>res.json())
     .then((data)=>{
-        displayVideo(data.videos)
+        removeColor();
         document.getElementById('btn-all').classList.add('active')
+         displayVideo(data.videos)
         
     })
 
@@ -57,7 +57,7 @@ const displayVideo = (videos) =>{
             <img src="./asstes/Icon.png" alt="">
             <h1 class="text-2xl font-extrabold text-center">Oops!! Sorry, There is no <br> content here</h1>
         </div>
-
+        
         `
         return;
     }
@@ -121,12 +121,12 @@ const categoriesVideoLoad = (id)=>{
     fetch(url)
     .then((res)=>res.json())
     .then((data)=>{
-        displayVideo(data.category)
 
         removeColor()
         const btnId = document.getElementById(`btn-${id}`)
         btnId.classList.add('active');
         // console.log(btnId);
+        displayVideo(data.category)
     })
 }
 

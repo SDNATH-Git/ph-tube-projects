@@ -1,3 +1,12 @@
+// remove function
+function removeColor(){
+    const active=document.getElementsByClassName("active");
+    for(let act of active){
+         act.classList.remove('active');
+    }
+   
+}
+
 
 /*
 apl to button call
@@ -15,7 +24,7 @@ function display(categories){
         // console.log(cate);
         const div = document.createElement('div');
         div.innerHTML=`
-        <button class="btn btn-sm hover:bg-[#FF1F3D] hover:text-white">${cate.category
+        <button id="btn-${cate.category_id}" onclick="categoriesVideoLoad(${cate.category_id})" class="btn btn-sm hover:bg-[#FF1F3D] hover:text-white">${cate.category
 }</button>
         `
         buttonSection.appendChild(div);
@@ -27,15 +36,31 @@ loadcategoris()
 /*
 * video card section API call 
 */
-function loadVideoCard(){
-    fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
+function loadVideoCard(searchVar = ''){
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchVar}`)
     .then((res)=>res.json())
-    .then((data)=>displayVideo(data.videos))
+    .then((data)=>{
+        displayVideo(data.videos)
+        document.getElementById('btn-all').classList.add('active')
+        
+    })
 
 }
 const displayVideo = (videos) =>{
 
     const videoCard = document.getElementById('videoCard');
+    videoCard.innerHTML= "";
+
+    if(videos.length === 0){
+        videoCard.innerHTML=`
+        <div class="col-span-4 flex flex-col justify-center items-center py-20 gap-4">
+            <img src="./asstes/Icon.png" alt="">
+            <h1 class="text-2xl font-extrabold text-center">Oops!! Sorry, There is no <br> content here</h1>
+        </div>
+
+        `
+        return;
+    }
 
     videos.forEach((video)=>{
         // console.log(video);
@@ -63,13 +88,20 @@ const displayVideo = (videos) =>{
                     <h1 class="font-bold mb-2">${video.title}</h1>
                     <p class="text-sm font-medium text-gray-500 flex gap-1 mb-1">
                         ${video.authors[0].profile_name}
-                        <img class="w-5" src="https://img.icons8.com/?size=96&id=98A4yZTt9abw&format=png" alt="">
+                        ${video.authors[0].verified == true? 
+                            `<img class="w-5" src="https://img.icons8.com/?size=96&id=98A4yZTt9abw&format=png" alt="">` 
+                            :
+                            ``
+                        }
+                        
                     </p>
 
                     <p class="text-sm font-medium text-gray-500">${video.others.views}</p>
 
                 </div>
             </div>
+               <button onclick= videoDetails('${video.video_id}') class="btn btn-block">Show Details</button>
+            
         </div>
         
         `
@@ -80,4 +112,40 @@ const displayVideo = (videos) =>{
     
 }
 
-loadVideoCard();
+// loadVideoCard();
+
+// Categoris video load -----
+const categoriesVideoLoad = (id)=>{
+    const url = `https://openapi.programming-hero.com/api/phero-tube/category/${id}`
+    // console.log(url);
+    fetch(url)
+    .then((res)=>res.json())
+    .then((data)=>{
+        displayVideo(data.category)
+
+        removeColor()
+        const btnId = document.getElementById(`btn-${id}`)
+        btnId.classList.add('active');
+        // console.log(btnId);
+    })
+}
+
+
+// Video Details 
+const videoDetails = (video)=>{
+    console.log(video);
+    const modal=document.getElementById('details_modal').showModal();
+    const modalDetails=document.getElementById('modalDetails');
+    modalDetails.innerHTML=`
+    <h1>${video.title}</h1>
+    `
+
+}
+
+// searchVar 
+document.getElementById('searchVar').addEventListener("keyup",(e)=>{
+    const input = e.target.value;
+    console.log(input);
+    loadVideoCard(input);
+
+})
